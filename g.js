@@ -47,7 +47,10 @@ function sh(args) {
 
       Object.assign(env, process.env)
 
-      env.PATH = `${newBin}:${env.PATH}`
+      env.PATH         = `${newBin}:${env.PATH}`
+      env.HISTFILE     = `${cwd}/.git/bash_history`
+      env.HISTSIZE     = -1
+      env.HISTFILESIZE = -1
 
       console.log(`Directory ${cwd}`)
       console.log(`Adding $PATH ${bins}`)
