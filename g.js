@@ -6,6 +6,8 @@ import {spawn}  from 'child_process'
 import minimist from 'minimist'
 import mkdirp   from 'mkdirp'
 import glob     from 'glob'
+import Github   from 'github-api'
+import assert   from 'assert'
 
 const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
 const args = minimist(process.argv.slice(2))
@@ -16,10 +18,35 @@ case 'clone':
   return clone(args)
 case 'sh':
   return sh(args)
+case 'create':
+  return create(args)
 default:
   return usage(1)
 }
 
+function create(args) {
+  const password = process.env.G_GITHUB_TOKEN
+  const username = process.env.G_GITHUB_USER
+
+  assert(username, 'please set G_GITHUB_USER')
+  assert(password, 'please set G_GITHUB_TOKEN')
+
+  let gh = new Github({token:password, auth:'oauth'})
+
+  let name = args._.shift()
+  let pathname = `github.com/${username}/${name}`
+  let projPath = join(HOME, pathname)
+
+  mkdirp(projPath, err => {
+    if (err) throw console.error(err)
+
+    gh.getUser().createRepo({name}, (err, res) => {
+      if (err) throw console.error(err)
+
+      clone({_:[`git@github.com:${username}/${name}`]})
+    })
+  })
+}
 
 function sh(args) {
   let query = args._.shift()
