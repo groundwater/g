@@ -1,5 +1,6 @@
 #!/usr/bin/env babel-node
 
+import {createReadStream} from 'fs'
 import {split, join, basename, dirname}  from 'path'
 import {parse}  from 'ssh-url'
 import {spawn}  from 'child_process'
@@ -13,6 +14,8 @@ const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
 const args = minimist(process.argv.slice(2))
 const cmd = args._.shift()
 
+if (args.h || args.help) return help()
+
 switch(cmd) {
 case 'clone':
   return clone(args)
@@ -22,6 +25,8 @@ case 'create':
   return create(args)
 case 'list':
   return list()
+case 'help':
+  return help()
 default:
   return usage(1)
 }
@@ -107,8 +112,13 @@ function sh(args) {
   })
 }
 
+function help() {
+  createReadStream(join(__dirname, 'usage.txt')).pipe(process.stdout)
+}
+
 function usage(status) {
-  console.log(`Usage: ${process.argv[0]} [OPTIONS] CMD [ARGS]`)
+  console.log(`Usage: g [OPTIONS] CMD [ARGS]`)
+  console.log(`Help : g -h`)
   process.exit(status)
 }
 
