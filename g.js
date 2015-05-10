@@ -20,8 +20,22 @@ case 'sh':
   return sh(args)
 case 'create':
   return create(args)
+case 'list':
+  return list()
 default:
   return usage(1)
+}
+
+function list() {
+  let query = args._.shift() || ''
+  let [three='*', two='*', one='*'] = query.split('/').reverse()
+  let search = `${one}/${two}/${three}`
+
+  glob(search, {cwd: HOME}, (err, list) => {
+    if (err) throw err
+
+    list.forEach(item => console.log(item))
+  })
 }
 
 function create(args) {
