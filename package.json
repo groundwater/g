@@ -1,6 +1,6 @@
 {
   "name": "@groundwater/g",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "",
   "scripts": {
     "prepublish": "babel g.js -o g-min.js --optional runtime"
