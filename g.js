@@ -11,24 +11,29 @@ import Github   from 'github-api'
 import assert   from 'assert'
 
 const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
-const args = minimist(process.argv.slice(2))
-const cmd = args._.shift()
 
-if (args.h || args.help) return help()
+main()
 
-switch(cmd) {
-case 'clone':
-  return clone(args)
-case 'sh':
-  return sh(args)
-case 'create':
-  return create(args)
-case 'list':
-  return list()
-case 'help':
-  return help()
-default:
-  return usage(1)
+function main() {
+  const args = minimist(process.argv.slice(2))
+  const cmd = args._.shift()
+
+  if (args.h || args.help) return help()
+
+  switch(cmd) {
+  case 'clone':
+    return clone(args)
+  case 'sh':
+    return sh(args)
+  case 'create':
+    return create(args)
+  case 'list':
+    return list()
+  case 'help':
+    return help()
+  default:
+    return usage(1)
+  }
 }
 
 function list() {
