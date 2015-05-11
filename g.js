@@ -11,11 +11,11 @@ import Github   from 'github-api'
 import assert   from 'assert'
 
 const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
+const args = minimist(process.argv.slice(2))
 
 main()
 
 function main() {
-  const args = minimist(process.argv.slice(2))
   const cmd = args._.shift()
 
   if (args.h || args.help) return help()
