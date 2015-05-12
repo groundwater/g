@@ -104,16 +104,27 @@ function sh(args) {
       env.HISTSIZE     = -1
       env.HISTFILESIZE = -1
 
+      let WHITE = '\\e[0;37m'
+      let GREEN = '\\e[0;32m'
+      let GRAY  = '\\e[0;90m'
+      let CLEAR = '\\e[0m'
+
+      env._PS1_LINE = ``
+      env.PS1 = `${GRAY}Project: ${WHITE}(${list[0]})${CLEAR}$(__git_ps1)
+[\\!]> `
+
       console.log(`Directory ${cwd}`)
       console.log(`Adding $PATH ${bins}`)
 
-      spawn('bash', [], {stdio: 'inherit', cwd, env})
-      .on('exit', code => {
+      let proc = spawn('bash', ['--rcfile', __dirname + '/git-prompt.sh'], {stdio: 'inherit', cwd, env})
+
+      proc.on('exit', code => {
         console.log('Exited', code)
       })
-      .on('error', err => {
+      proc.on('error', err => {
         console.error(err)
       })
+
     }
   })
 }
