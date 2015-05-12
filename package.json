@@ -3,7 +3,7 @@
   "version": "2.0.4",
   "description": "",
   "scripts": {
-    "prepublish": "babel g.js -o g-min.js --optional runtime"
+    "prepublish": "babel -o g-min.js g.js"
   },
   "bin": {
     "g": "./g-cli.js"
@@ -12,7 +12,7 @@
   "author": "Jacob Groundwater <groundwater@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "babel-runtime": "^5.2.17",
+    "babel": "^5.2.17",
     "github-api": "^0.10.4",
     "glob": "^5.0.5",
     "minimist": "^1.1.1",

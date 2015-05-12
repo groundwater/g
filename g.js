@@ -1,5 +1,6 @@
 #!/usr/bin/env babel-node
 
+import 'babel/polyfill'
 import {createReadStream} from 'fs'
 import {split, join, basename, dirname}  from 'path'
 import {parse}  from 'ssh-url'
@@ -37,8 +38,8 @@ function main() {
 }
 
 function list() {
-  let query = args._.shift() || ''
-  let [three='*', two='*', one='*'] = query.split('/').reverse()
+  let query = args._.shift()
+  let [three='*', two='*', one='*'] = query ? query.split('/').reverse() : []
   let search = `${one}/${two}/${three}`
 
   glob(search, {cwd: HOME}, (err, list) => {
