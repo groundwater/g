@@ -1,7 +1,7 @@
 #!/usr/bin/env babel-node
 
 import 'babel/polyfill'
-import {createReadStream, readFileSync, existsSync} from 'fs'
+import {createReadStream, writeFileSync, readFileSync, existsSync} from 'fs'
 import {split, join, basename, dirname}  from 'path'
 import {parse}  from 'ssh-url'
 import {spawn}  from 'child_process'
@@ -11,6 +11,7 @@ import glob     from 'glob'
 import Github   from 'github-api'
 import assert   from 'assert'
 import clc      from 'cli-color'
+import readline from 'readline'
 
 const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
 const args = minimist(process.argv.slice(2))
@@ -34,6 +35,8 @@ function main() {
     return sh(args)
   case 'create':
     return create(args)
+  case 'resume':
+    return resume()
   case 'list':
     return list()
   case 'help':
@@ -41,6 +44,50 @@ function main() {
   default:
     return usage(1)
   }
+}
+
+function resume() {
+  var rl = readline.createInterface({
+    input  : process.stdin,
+    output : process.stdout
+  })
+
+  let lastPath = join(HOME, '.g', 'last')
+
+  var lastItems = {}
+  if (existsSync(lastPath)) {
+    lastItems = JSON.parse(readFileSync(lastPath, 'utf-8'))
+  }
+
+  if (lastItems.length === 0) {
+    rl.close()
+    console.log('No Projects to Resume')
+    return
+  }
+
+  var items = Object.keys(lastItems)
+  .map(key => {
+    return {key, item: lastItems[key]}
+  })
+  .sort((l,r) => r.item.access - l.item.access)
+  .slice(0, 5)
+
+  items.forEach((item, i) => {
+    console.log(i, item.key)
+  })
+
+  rl.question('Choose: ', answer => {
+    let j = parseInt(answer)
+
+    rl.close()
+
+    if (items[j]) {
+      sh({_: [items[j].key]})
+    }
+    else {
+      console.log('Not Found')
+    }
+  })
 }
 
 function list() {
@@ -101,6 +148,24 @@ function sh(args) {
       let env = {}
       let cwd = join(HOME, list[0])
       let bins = `${cwd}/node_modules/.bin`
+
+
+      { // read and save
+
+        let gFilePath = join(HOME, '.g')
+        let gLastPath = join(gFilePath, 'last')
+
+        var lastItems = {}
+        if (existsSync(gLastPath)) {
+          lastItems = JSON.parse(readFileSync(gLastPath, 'utf-8'))
+        }
+
+        lastItems[list[0]] = {access: Date.now()}
+
+        mkdirp(gFilePath)
+        writeFileSync(gLastPath, JSON.stringify(lastItems), 'utf-8')
+      }
+
 
       Object.assign(env, process.env)
 
