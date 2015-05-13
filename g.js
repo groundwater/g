@@ -95,11 +95,10 @@ function sh(args) {
       let env = {}
       let cwd = join(HOME, list[0])
       let bins = `${cwd}/node_modules/.bin`
-      let newBin = join(HOME, bins)
 
       Object.assign(env, process.env)
 
-      env.PATH         = `${newBin}:${env.PATH}`
+      env.PATH         = `${bins}:${env.PATH}`
       env.HISTFILE     = `${cwd}/.git/bash_history`
       env.HISTSIZE     = -1
       env.HISTFILESIZE = -1
