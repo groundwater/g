@@ -1,7 +1,7 @@
 #!/usr/bin/env babel-node
 
 import 'babel/polyfill'
-import {createReadStream} from 'fs'
+import {createReadStream, readFileSync, existsSync} from 'fs'
 import {split, join, basename, dirname}  from 'path'
 import {parse}  from 'ssh-url'
 import {spawn}  from 'child_process'
@@ -10,9 +10,15 @@ import mkdirp   from 'mkdirp'
 import glob     from 'glob'
 import Github   from 'github-api'
 import assert   from 'assert'
+import clc      from 'cli-color'
 
 const HOME = process.env.G_PROJECT_ROOT || join(process.env.HOME, 'Projects')
 const args = minimist(process.argv.slice(2))
+
+const _log = console.log
+console.log = function(message, ...args) {
+  _log(clc.xterm(236)(message), ...args)
+}
 
 main()
 
@@ -98,6 +104,26 @@ function sh(args) {
 
       Object.assign(env, process.env)
 
+      let envFilePath = `${cwd}/.env`
+      var envFile = []
+      if (existsSync(envFilePath)) {
+        console.log(`Loading Environment: ${envFilePath}`)
+        envFile = readFileSync(envFilePath, 'utf-8')
+          .split('\n')
+          .filter(i => i)
+          .map(line => line.split('=').map(i => i.trim()))
+      }
+
+      envFile.forEach(([lhs, rhs]) => {
+        console.log(`Setting: ${lhs}=${rhs}`)
+        env[lhs] = rhs
+      })
+
+      const WHITE = '\\033[0;37m'
+      const GREEN = '\\033[0;32m'
+      const GRAY  = '\\033[0;90m'
+      const CLEAR = '\\033[0m'
+
       env.PATH         = `${bins}:${env.PATH}`
       env.HISTFILE     = `${cwd}/.git/bash_history`
       env.HISTSIZE     = -1
@@ -107,16 +133,11 @@ function sh(args) {
       env.GIT_PS1_SHOWUNTRACKEDFILES = 1
       env.GIT_PS1_SHOWUPSTREAM = 'git'
 
-      let WHITE = '\\e[0;37m'
-      let GREEN = '\\e[0;32m'
-      let GRAY  = '\\e[0;90m'
-      let CLEAR = '\\e[0m'
-
       env.PS1 = `${GRAY}Project: ${WHITE}(${list[0]})${CLEAR}$(__git_ps1)
 [\\!]> `
 
-      console.log(`Directory ${cwd}`)
-      console.log(`Adding $PATH ${bins}`)
+      console.log(`Working Directory: ${cwd}`)
+      console.log(`Appending to Bin Path: ${bins}`)
 
       let proc = spawn('bash', ['--rcfile', __dirname + '/git-prompt.sh'], {stdio: 'inherit', cwd, env})
 
