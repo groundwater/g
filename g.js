@@ -103,13 +103,16 @@ function sh(args) {
       env.HISTFILE     = `${cwd}/.git/bash_history`
       env.HISTSIZE     = -1
       env.HISTFILESIZE = -1
+      env.GIT_PS1_SHOWCOLORHINTS = 1
+      env.GIT_PS1_SHOWDIRTYSTATE = 1
+      env.GIT_PS1_SHOWUNTRACKEDFILES = 1
+      env.GIT_PS1_SHOWUPSTREAM = 'git'
 
       let WHITE = '\\e[0;37m'
       let GREEN = '\\e[0;32m'
       let GRAY  = '\\e[0;90m'
       let CLEAR = '\\e[0m'
 
-      env._PS1_LINE = ``
       env.PS1 = `${GRAY}Project: ${WHITE}(${list[0]})${CLEAR}$(__git_ps1)
 [\\!]> `
 
@@ -119,7 +122,7 @@ function sh(args) {
       let proc = spawn('bash', ['--rcfile', __dirname + '/git-prompt.sh'], {stdio: 'inherit', cwd, env})
 
       proc.on('exit', code => {
-        console.log('Exited', code)
+        console.log('Goodbye!', code||'')
       })
       proc.on('error', err => {
         console.error(err)
