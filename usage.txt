@@ -6,6 +6,7 @@ Commands:
   sh GLOB      spawn a shell rooted in the project
   create NAME  create a project of NAME on github
   list [GLOB]  list projects (optionally matching GLOB)
+  resume       interactive select recently used
 
 Environment:
 
